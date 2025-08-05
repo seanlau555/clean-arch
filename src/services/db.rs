@@ -1,7 +1,12 @@
 use std::env;
 
 use actix_web::http::Error;
-use mongodb::{results::InsertOneResult, Client, Collection};
+// use mongodb::bson::doc;
+use mongodb::{
+    bson::{doc, oid::ObjectId},
+    results::{InsertOneResult, UpdateResult},
+    Client, Collection,
+};
 
 use crate::models::{booking_model::Booking, dog_model::Dog, owner_model::Owner};
 
@@ -56,13 +61,33 @@ impl Database {
         Ok(result)
     }
 
-    pub async fn create_owner(&self, owner: Owner) -> Result<InsertOneResult, Error> {
+    pub async fn create_booking(&self, booking: Booking) -> Result<InsertOneResult, Error> {
         let result = self
-            .owner
-            .insert_one(owner)
+            .booking
+            .insert_one(booking)
             .await
             .ok()
-            .expect("Error creating owner");
+            .expect("Error creating booking");
+
+        Ok(result)
+    }
+
+    pub async fn cancel_booking(&self, booking_id: &str) -> Result<UpdateResult, Error> {
+        let result = self
+            .booking
+            .update_one(
+                doc! {
+                    "_id": ObjectId::parse_str(booking_id).expect("Failed to parse booking_id")
+                },
+                doc! {
+                    "$set": doc! {
+                        "cancelled": true
+                    }
+                },
+            )
+            .await
+            .ok()
+            .expect("Error cancelling booking");
 
         Ok(result)
     }
