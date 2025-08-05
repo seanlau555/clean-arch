@@ -1,12 +1,25 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  postgres:
-    image: postgres:latest
+  # postgres:
+  #   image: postgres:latest
+  #   ports:
+  #     - "5431:5432"
+  #   environment:
+  #     POSTGRES_USER: admin
+  #     POSTGRES_PASSWORD: admin123
+  #     POSTGRES_DB: user_db
+  mongo:
+    image: mongo:6.0
+    container_name: mongodb
+    restart: always
     ports:
-      - "5432:5432"
+      - "27017:27017"
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin123
-      POSTGRES_DB: user_db
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+    volumes:
+      - ./mongo_data:/data/db
 
+volumes:
+  mongo_data:
